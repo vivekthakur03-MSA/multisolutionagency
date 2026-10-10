@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign Document | Multisolution Agency</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<style>
+:root{--navy:#0A2463;--gold:#D9962B;--sky:#EAF1FB;--line:#DCE5F4;--ink:#14203F}
+body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--sky);margin:0;padding:20px}
+.wrap{max-width:860px;margin:auto}
+.card{background:#fff;border-radius:18px;border:1px solid var(--line);padding:26px;box-shadow:0 10px 30px rgba(10,36,99,.06)}
+h1{font-family:'Montserrat',sans-serif;color:var(--navy);font-size:1.5rem;margin-top:0}
+.pdf-viewer{width:100%;height:520px;border:1.5px solid var(--line);border-radius:12px;margin-bottom:20px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{margin-bottom:14px}
+label{display:block;font-weight:600;font-size:0.86rem;margin-bottom:6px;color:var(--navy)}
+input{width:100%;box-sizing:border-box;padding:12px;border:1.5px solid var(--line);border-radius:10px;font:inherit}
+canvas{border:1.5px dashed var(--navy);border-radius:10px;background:#fff;width:100%;height:150px;touch-action:none}
+.btn{font-family:'Montserrat',sans-serif;font-weight:700;padding:14px 28px;border-radius:999px;border:0;cursor:pointer;display:inline-block}
+.btn-gold{background:var(--gold);color:#061745;font-size:1rem;width:100%}
+.btn-gold[disabled]{opacity:.65;cursor:wait}
+.btn-clear{background:transparent;color:#666;border:1px solid #ccc;padding:6px 12px;border-radius:6px;cursor:pointer;margin-top:6px}
+.success-screen{display:none;text-align:center;padding:40px 20px}
+@media (max-width:520px){
+  body{padding:12px}
+  .card{padding:20px 16px;border-radius:14px}
+  h1{font-size:1.25rem}
+  .pdf-viewer{height:340px}
+  .row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" id="signingArea">
+    <h1 id="docHeading">Review & Sign Document</h1>
+    <p style="color:#55627F;margin-top:-6px;margin-bottom:16px">Please review the document below. Fill your details and draw your signature to complete.</p>
+
+    <!-- Uploaded PDF Viewer -->
+    <iframe class="pdf-viewer" id="pdfFrame" src=""></iframe>
+
+    <!-- Client Inputs -->
+    <form id="signForm">
+      <div class="row">
+        <div class="field">
+          <label>Authorized Signatory Name</label>
+          <input type="text" id="signerName" required placeholder="Full Name">
+        </div>
+        <div class="field">
+          <label>Designation / Title</label>
+          <input type="text" id="signerTitle" required placeholder="e.g. Director, Manager">
+        </div>
+      </div>
+      <div class="field">
+        <label>Company / Organization Name</label>
+        <input type="text" id="signerCompany" required placeholder="Company Name">
+      </div>
+
+      <!-- Signature Box -->
+      <div class="field">
+        <label>Draw Your Signature Below (Ungli ya Mouse se sign karein)</label>
+        <canvas id="sigCanvas"></canvas>
+        <button type="button" class="btn-clear" id="clearBtn">Clear Signature</button>
+      </div>
+
+      <button type="submit" class="btn btn-gold" id="submitBtn">Sign & Lock Document</button>
+    </form>
+  </div>
+
+  <!-- Success & Download Screen -->
+  <div class="card success-screen" id="successArea">
+    <h1 style="color:#2FA75A">Document Successfully Signed!</h1>
+    <p>A digital copy with your signature, name, and timestamp has been generated.</p>
+    <button class="btn btn-gold" style="max-width:320px;margin-top:16px" id="downloadBtn">Download Signed PDF</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+var firebaseConfig = {
+  apiKey: "AIzaSyCwZ8-5XaKweQpW9MUmDIceCrasWPpovNg",
+  authDomain: "multisolution-agency.firebaseapp.com",
+  projectId: "multisolution-agency",
+  storageBucket: "multisolution-agency.firebasestorage.app",
+  messagingSenderId: "901377722666",
+  appId: "1:901377722666:web:78cc1940bb28ddef483653"
+};
+var app = initializeApp(firebaseConfig);
+var db = getFirestore(app);
+var storage = getStorage(app);
+
+var params = new URLSearchParams(window.location.search);
+var docId = params.get('id');
+
+var canvas = document.getElementById('sigCanvas');
+function resizeCanvas() {
+  var ratio = Math.max(window.devicePixelRatio || 1, 1);
+  canvas.width = canvas.offsetWidth * ratio;
+  canvas.height = canvas.offsetHeight * ratio;
+  canvas.getContext("2d").scale(ratio, ratio);
+}
+window.onresize = resizeCanvas;
+resizeCanvas();
+var sigPad = new SignaturePad(canvas);
+document.getElementById('clearBtn').onclick = () => sigPad.clear();
+
+var currentDocData = null;
+var generatedPdfBytes = null;
+
+if(docId){
+  getDoc(doc(db, "customDocs", docId)).then(snap => {
+    if(snap.exists()){
+      currentDocData = snap.data();
+      document.getElementById('docHeading').textContent = currentDocData.title || "Review & Sign Document";
+      document.getElementById('pdfFrame').src = currentDocData.pdfUrl || currentDocData.pdfBase64;
+    } else {
+      document.getElementById('signingArea').innerHTML = "<h2>Document not found or link expired.</h2>";
+    }
+  });
+} else {
+  document.getElementById('signingArea').innerHTML = "<h2>No document specified. Please use the signing link that was shared with you.</h2>";
+}
+
+document.getElementById('signForm').onsubmit = async (e) => {
+  e.preventDefault();
+  if(sigPad.isEmpty()){ alert("Kripya sign box me pehle signature karein!"); return; }
+
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = "Processing & Stamping Signature...";
+
+  var signerName = document.getElementById('signerName').value;
+  var signerTitle = document.getElementById('signerTitle').value;
+  var signerCompany = document.getElementById('signerCompany').value;
+  var sigImgData = sigPad.toDataURL("image/png");
+
+  try{
+    // Load uploaded original PDF (from Firebase Storage, or from older data-URI documents)
+    const existingPdfBytes = await fetch(currentDocData.pdfUrl || currentDocData.pdfBase64).then(res => res.arrayBuffer());
+    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+
+    // Target last page
+    const pages = pdfDoc.getPages();
+    const lastPage = pages[pages.length - 1];
+    const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+
+    // Stamp text on Vendor signature area
+    // Coordinates tuned to Multisolution Agency's Master Services Agreement
+    // template ("FOR CLIENT" signature block, bottom-right of the last page, A4).
+    lastPage.drawText(signerName, { x: 336, y: 427, size: 10, font: font });
+    lastPage.drawText(signerTitle, { x: 329, y: 416, size: 10, font: font });
+    lastPage.drawText(signerCompany, { x: 349, y: 405, size: 10, font: font });
+    lastPage.drawText(new Date().toLocaleDateString('en-GB'), { x: 331, y: 382, size: 10, font: font });
+
+    // Stamp Signature Image
+    const signatureImage = await pdfDoc.embedPng(sigImgData);
+    lastPage.drawImage(signatureImage, { x: 348, y: 450, width: 110, height: 32 });
+
+    generatedPdfBytes = await pdfDoc.save();
+
+    // Upload the signed PDF to Storage (handles large files) and save just its link.
+    var signedRef = storageRef(storage, 'documents/' + docId + '/signed.pdf');
+    await uploadBytes(signedRef, new Blob([generatedPdfBytes], { type: 'application/pdf' }), { contentType: 'application/pdf' });
+    var signedPdfUrl = await getDownloadURL(signedRef);
+
+    await updateDoc(doc(db, "customDocs", docId), {
+      status: "Signed",
+      signedBy: signerName,
+      signedTitle: signerTitle,
+      signedCompany: signerCompany,
+      signedAt: new Date().toISOString(),
+      signedPdfUrl: signedPdfUrl
+    });
+
+    document.getElementById('signingArea').style.display = 'none';
+    document.getElementById('successArea').style.display = 'block';
+  } catch(err){
+    console.error(err);
+    alert("Something went wrong while signing. Please try again, or contact us if the problem continues.");
+    btn.disabled = false;
+    btn.textContent = "Sign & Lock Document";
+  }
+};
+
+document.getElementById('downloadBtn').onclick = () => {
+  const blob = new Blob([generatedPdfBytes], { type: "application/pdf" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `Signed_${currentDocData.title || "Document"}.pdf`;
+  link.click();
+};
+</script>
+</body>
+</html>
