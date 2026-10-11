@@ -129,8 +129,7 @@ canvas{border:1.5px dashed var(--navy);border-radius:10px;background:#fff;width:
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { getFirestore, doc, getDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 var firebaseConfig = {
   apiKey: "AIzaSyCwZ8-5XaKweQpW9MUmDIceCrasWPpovNg",
@@ -142,7 +141,6 @@ var firebaseConfig = {
 };
 var app = initializeApp(firebaseConfig);
 var db = getFirestore(app);
-var storage = getStorage(app);
 
 function $(id){ return document.getElementById(id); }
 $('yr').textContent = new Date().getFullYear();
@@ -227,7 +225,9 @@ if(docId){
     $('docHeading').textContent = title; document.title = title + " | Sign Document";
     $('docDate').textContent = fmtDate(currentDocData.createdAt);
     var pdf = currentDocData.pdfUrl || currentDocData.pdfBase64;
-    $('pdfFrame').src = pdf; $('openPdf').href = pdf;
+    if(pdf && pdf.indexOf('data:') === 0){
+      fetch(pdf).then(function(r){ return r.blob(); }).then(function(b){ var u = URL.createObjectURL(b); $('pdfFrame').src = u; $('openPdf').href = u; });
+    } else { $('pdfFrame').src = pdf; $('openPdf').href = pdf; }
     if(currentDocData.status === 'Signed'){
       var url = currentDocData.signedPdfUrl || currentDocData.signedPdfBase64;
       showMsg("<div class='tick'>&#10003;</div><h2 style='color:#1E7A41'>Already signed</h2><p style='color:#55627F'>This document was signed by <b>" +
@@ -273,10 +273,12 @@ $('signForm').onsubmit = async function(e){
 
     generatedPdfBytes = await pdfDoc.save();
 
-    // Upload the signed PDF to Storage (handles large files) and save just its link.
-    var signedRef = storageRef(storage, 'documents/' + docId + '/signed.pdf');
-    await uploadBytes(signedRef, new Blob([generatedPdfBytes], { type: 'application/pdf' }), { contentType: 'application/pdf' });
-    var signedPdfUrl = await getDownloadURL(signedRef);
+    // Save the signed PDF directly in Firestore (replaces the unsigned copy to stay within the size limit).
+    var signedDataUrl = await new Promise(function(res, rej){
+      var fr = new FileReader(); fr.onload = function(){ res(fr.result); }; fr.onerror = function(){ rej(new Error('read')); };
+      fr.readAsDataURL(new Blob([generatedPdfBytes], { type: 'application/pdf' }));
+    });
+    if(signedDataUrl.length > 1000000){ throw new Error('TOO_LARGE'); }
 
     var signedAt = new Date();
     await updateDoc(doc(db, "customDocs", docId), {
@@ -285,7 +287,8 @@ $('signForm').onsubmit = async function(e){
       signedTitle: signerTitle,
       signedCompany: signerCompany,
       signedAt: signedAt.toISOString(),
-      signedPdfUrl: signedPdfUrl
+      signedPdfBase64: signedDataUrl,
+      pdfBase64: deleteField()
     });
 
     $('refId').textContent = docId.slice(0, 8).toUpperCase();
@@ -295,7 +298,7 @@ $('signForm').onsubmit = async function(e){
     window.scrollTo(0, 0);
   } catch(err){
     console.error(err);
-    showErr("Something went wrong while signing. Please try again, or contact us if the problem continues.");
+    showErr(err && err.message === "TOO_LARGE" ? "The signed file is too large to save. Please contact Multisolution Agency." : "Something went wrong while signing. Please try again, or contact us if the problem continues.");
     delete btn.dataset.busy; btn.textContent = "Sign & Lock Document"; updateSteps();
   }
 };

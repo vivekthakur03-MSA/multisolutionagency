@@ -459,7 +459,7 @@ body.in-app header,body.in-app .site-foot{display:none}
   <p class="muted">Upload a PDF agreement or purchase order. A signing link is generated instantly.</p>
   <form id="docUploadForm" style="margin-top:16px">
     <div class="field"><label for="docTitle">Document name / title</label><input id="docTitle" required placeholder="e.g. Purchase Order - Annolance Project"></div>
-    <div class="field"><label for="pdfFileInput">PDF file</label><input type="file" id="pdfFileInput" accept="application/pdf" required></div>
+    <div class="field"><label for="pdfFileInput">PDF file (max 700 KB)</label><input type="file" id="pdfFileInput" accept="application/pdf" required></div>
     <button class="btn btn-gold btn-block" type="submit" id="docUploadBtn"><span>Upload &amp; generate link</span></button>
   </form>
   <div id="uploadLinkBox" style="display:none;margin-top:18px;padding:14px;background:var(--sky);border-radius:12px;border:1px solid var(--line)">
@@ -765,14 +765,16 @@ function renderDocs(){
       '<td>'+esc(v.uploadedBy||'\u2014')+'</td><td>'+fmt(v.createdAt)+'</td>'+
       '<td><span class="badge '+(signed?'signed':'pending')+'">'+(signed?'Signed':'Pending')+'</span></td>'+
       '<td class="acts"><button class="ib" type="button" data-copy="'+esc(link)+'">Copy link</button>'+
-      (signed&&url?'<a class="ib" href="'+esc(url)+'" target="_blank" rel="noopener">View</a><button class="ib" type="button" data-dl="'+esc(url)+'" data-dlname="Signed_'+esc(v.title||'Document')+'.pdf">Download</button>':'')+
+      (signed&&url?'<button class="ib" type="button" data-view="'+esc(url)+'">View</button><button class="ib" type="button" data-dl="'+esc(url)+'" data-dlname="Signed_'+esc(v.title||'Document')+'.pdf">Download</button>':'')+
       '<button class="ib del" type="button" data-del="'+v.id+'">Delete</button></td></tr>';
   }).join('') : '<tr><td colspan="5" class="empty muted">'+(docsData.length?'No documents match your search.':'No documents yet. Upload one to generate a signing link.')+'</td></tr>';
 }
 $('docSearch').addEventListener('input',renderDocs);
 $('docFilter').addEventListener('change',renderDocs);
 $('docsList').addEventListener('click',async function(e){
-  var c=e.target.closest('[data-copy]'), d=e.target.closest('[data-del]'), dl=e.target.closest('[data-dl]');
+  var c=e.target.closest('[data-copy]'), d=e.target.closest('[data-del]'), dl=e.target.closest('[data-dl]'), vw=e.target.closest('[data-view]');
+  if(vw){ var vu=vw.getAttribute('data-view'), w=window.open('','_blank');
+    try{ var bl=await (await fetch(vu)).blob(); var bu=URL.createObjectURL(bl); if(w) w.location=bu; else window.location=bu; }catch(er){ if(w) w.close(); toast('Could not open the document'); } }
   if(c){ var u=c.getAttribute('data-copy'); navigator.clipboard.writeText(u).then(function(){ toast('Signing link copied'); }).catch(function(){ window.prompt('Copy this link:',u); }); }
   if(d){ if(await askConfirm('This document will be permanently deleted.')){ deleteDoc(doc(db,'customDocs',d.getAttribute('data-del'))).then(function(){ toast('Document deleted'); }); } }
   if(dl){
@@ -825,25 +827,25 @@ $('postForm').addEventListener('submit', function(e){
   }).finally(function(){ btn.disabled=false; btn.innerHTML='<span>Post to home page</span>'; });
 });
 
-// ---- PDF upload & signing link (Firebase Storage, no size limit in the page) ----
+// ---- PDF upload & signing link (stored directly in Firestore, like before) ----
+// Firestore allows about 1 MB per record and a PDF grows by ~33% when stored as text,
+// so the largest PDF that fits is roughly 700 KB.
+var MAX_PDF_KB=700;
+function fileToDataUrl(f){ return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){ res(r.result); }; r.onerror=function(){ rej(new Error('Could not read the file')); }; r.readAsDataURL(f); }); }
 $('docUploadForm').addEventListener('submit', async function(e){
   e.preventDefault();
   var file=$('pdfFileInput').files[0], title=$('docTitle').value.trim(), btn=$('docUploadBtn');
   if(!file){ toast('Please select a PDF file'); return; }
+  if(file.size>MAX_PDF_KB*1024){ toast('File is too large. Maximum allowed is '+MAX_PDF_KB+' KB.'); return; }
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
-  var docRef=null;
   try{
-    docRef=await addDoc(collection(db,'customDocs'),{title:title,status:'Pending',uploadedBy:currentName,createdAt:serverTimestamp()});
-    var fileRef=storageRef(storage,'documents/'+docRef.id+'/original.pdf');
-    await uploadBytes(fileRef,file,{contentType:'application/pdf'});
-    var pdfUrl=await getDownloadURL(fileRef);
-    await updateDoc(doc(db,'customDocs',docRef.id),{pdfUrl:pdfUrl});
+    var dataUrl=await fileToDataUrl(file);
+    if(dataUrl.length>960000){ toast('File is too large. Maximum allowed is '+MAX_PDF_KB+' KB.'); return; }
+    var docRef=await addDoc(collection(db,'customDocs'),{title:title,status:'Pending',uploadedBy:currentName,createdAt:serverTimestamp(),pdfBase64:dataUrl});
     $('docGeneratedLink').value=window.location.origin+'/sign.html?id='+docRef.id;
     $('uploadLinkBox').style.display='block';
     $('docUploadForm').reset(); toast('Document uploaded');
-  }catch(err){ console.error(err);
-    if(docRef){ deleteDoc(doc(db,'customDocs',docRef.id)).catch(function(){}); }
-    toast('Upload failed: '+((err&&err.code)||(err&&err.message)||'unknown error')); }
+  }catch(err){ console.error(err); toast('Upload failed: '+((err&&err.code)||(err&&err.message)||'unknown error')); }
   finally{ btn.disabled=false; btn.innerHTML='<span>Upload &amp; generate link</span>'; }
 });
 $('copyLinkBtn').addEventListener('click',function(){
