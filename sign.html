@@ -5,79 +5,127 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sign Document | Multisolution Agency</title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&family=Dancing+Script:wght@600&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <style>
-:root{--navy:#0A2463;--gold:#D9962B;--sky:#EAF1FB;--line:#DCE5F4;--ink:#14203F}
-body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--sky);margin:0;padding:20px}
-.wrap{max-width:860px;margin:auto}
-.card{background:#fff;border-radius:18px;border:1px solid var(--line);padding:26px;box-shadow:0 10px 30px rgba(10,36,99,.06)}
-h1{font-family:'Montserrat',sans-serif;color:var(--navy);font-size:1.5rem;margin-top:0}
-.pdf-viewer{width:100%;height:520px;border:1.5px solid var(--line);border-radius:12px;margin-bottom:20px}
+:root{--navy:#0A2463;--navy-deep:#061745;--gold:#D9962B;--sky:#EAF1FB;--line:#DCE5F4;--ink:#14203F;--muted:#55627F;--green:#2FA75A;--red:#C0392B}
+*{box-sizing:border-box}
+body{font-family:'Inter',sans-serif;color:var(--ink);background:#F3F6FB;margin:0;display:flex;flex-direction:column;min-height:100vh}
+h1,h2,h3{font-family:'Montserrat',sans-serif;color:var(--navy);margin:0}
+.hd{background:linear-gradient(135deg,var(--navy),var(--navy-deep));border-bottom:5px solid var(--gold);color:#fff}
+.hd-in{max-width:900px;margin:auto;padding:18px 20px;display:flex;align-items:center;gap:16px}
+.hd img{height:56px;background:#fff;border-radius:10px;padding:4px}
+.hd b{display:block;font:800 1.2rem 'Montserrat',sans-serif;letter-spacing:.02em}
+.hd .reg{color:#F2C879;font-size:.82rem;font-weight:600;margin-top:2px}
+.hd .udy{color:#C7D4F0;font-size:.74rem;margin-top:1px}
+.wrap{max-width:900px;width:100%;margin:0 auto;padding:22px 16px;flex:1}
+.card{background:#fff;border-radius:16px;border:1px solid var(--line);padding:24px;box-shadow:0 8px 24px rgba(10,36,99,.06);margin-bottom:18px}
+.steps{display:flex;gap:10px;margin-bottom:18px}
+.st{flex:1;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-weight:600;font-size:.84rem;color:var(--muted)}
+.st i{width:26px;height:26px;border-radius:50%;background:var(--sky);color:var(--navy);font-style:normal;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;font-size:.8rem}
+.st.done{color:var(--navy);border-color:#BFE3CB}.st.done i{background:var(--green);color:#fff}
+.info{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;align-items:center}
+.info small{display:block;font-size:.68rem;font-weight:700;letter-spacing:.08em;color:#8A96B5;text-transform:uppercase;margin-bottom:3px}
+.info b{font-size:.95rem;color:var(--navy)}
+.badge{display:inline-block;font-weight:700;font-size:.74rem;padding:4px 12px;border-radius:999px;background:#F6E7C8;color:#7A4E0A}
+.badge.ok{background:#DFF3E6;color:#1E7A41}
+.pdf-viewer{width:100%;height:520px;border:1.5px solid var(--line);border-radius:12px}
+.open{display:inline-block;margin-top:10px;font-weight:600;font-size:.86rem;color:var(--navy);text-decoration:underline}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .field{margin-bottom:14px}
-label{display:block;font-weight:600;font-size:0.86rem;margin-bottom:6px;color:var(--navy)}
-input{width:100%;box-sizing:border-box;padding:12px;border:1.5px solid var(--line);border-radius:10px;font:inherit}
-canvas{border:1.5px dashed var(--navy);border-radius:10px;background:#fff;width:100%;height:150px;touch-action:none}
-.btn{font-family:'Montserrat',sans-serif;font-weight:700;padding:14px 28px;border-radius:999px;border:0;cursor:pointer;display:inline-block}
-.btn-gold{background:var(--gold);color:#061745;font-size:1rem;width:100%}
-.btn-gold[disabled]{opacity:.65;cursor:wait}
-.btn-clear{background:transparent;color:#666;border:1px solid #ccc;padding:6px 12px;border-radius:6px;cursor:pointer;margin-top:6px}
-.success-screen{display:none;text-align:center;padding:40px 20px}
-@media (max-width:520px){
-  body{padding:12px}
-  .card{padding:20px 16px;border-radius:14px}
-  h1{font-size:1.25rem}
-  .pdf-viewer{height:340px}
-  .row{grid-template-columns:1fr}
+label{display:block;font-weight:600;font-size:.86rem;margin-bottom:6px;color:var(--navy)}
+input[type=text]{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;font:inherit}
+input[type=text]:focus{outline:none;border-color:#1E56C8;box-shadow:0 0 0 3px rgba(30,86,200,.15)}
+.tabs{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;margin-bottom:10px}
+.tabs button{border:0;background:#fff;padding:8px 20px;font:600 .84rem 'Inter',sans-serif;color:var(--muted);cursor:pointer}
+.tabs button.on{background:var(--navy);color:#fff}
+canvas{border:1.5px dashed var(--navy);border-radius:10px;background:#fff;width:100%;height:150px;touch-action:none;display:block}
+.typed{height:150px;border:1.5px dashed var(--navy);border-radius:10px;display:flex;align-items:center;justify-content:center;font:600 2.6rem 'Dancing Script',cursive;color:#0A2463;overflow:hidden;padding:0 10px;margin-top:10px}
+.hint{font-size:.8rem;color:#8A96B5;margin:6px 0 0}
+.btn-clear{background:transparent;color:#666;border:1px solid #ccc;padding:6px 12px;border-radius:6px;cursor:pointer;margin-top:8px}
+.consent{display:flex;gap:10px;align-items:flex-start;background:var(--sky);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:6px 0 16px;font-size:.88rem;font-weight:500;cursor:pointer}
+.consent input{margin-top:3px;width:18px;height:18px;flex:none}
+.btn{font-family:'Montserrat',sans-serif;font-weight:700;padding:14px 28px;border-radius:999px;border:0;cursor:pointer;background:var(--gold);color:#061745;font-size:1rem;width:100%}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.err{color:var(--red);font-weight:600;font-size:.88rem;margin:10px 0 0;display:none}
+.center{text-align:center;padding:36px 20px}
+.tick{width:68px;height:68px;border-radius:50%;background:var(--green);color:#fff;font-size:2.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.ref{display:inline-block;background:var(--sky);border:1px solid var(--line);border-radius:10px;padding:10px 18px;margin:12px 0 18px;font-size:.88rem}
+.ref b{color:var(--navy)}
+.ft{background:var(--navy-deep);color:#C7D4F0;text-align:center;padding:20px 16px;font-size:.84rem}
+.ft b{color:#fff;font-family:'Montserrat',sans-serif}
+@media (max-width:600px){
+  .hd-in{padding:14px 14px}.hd img{height:46px}.hd b{font-size:1rem}
+  .card{padding:18px 14px}.pdf-viewer{height:340px}
+  .row,.info{grid-template-columns:1fr}.steps{gap:6px}.st{flex-direction:column;text-align:center;font-size:.72rem;padding:8px 4px;gap:4px}
 }
 </style>
 </head>
 <body>
+<header class="hd"><div class="hd-in">
+  <img src="data:image/jpeg;base64,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" alt="Multisolution Agency">
+  <div><b>MULTISOLUTION AGENCY</b><div class="reg">Registered under MSME &middot; Government of India</div><div class="udy">Udyam Reg. No. UDYAM-PB-17-0138121</div></div>
+</div></header>
+
 <div class="wrap">
-  <div class="card" id="signingArea">
-    <h1 id="docHeading">Review & Sign Document</h1>
-    <p style="color:#55627F;margin-top:-6px;margin-bottom:16px">Please review the document below. Fill your details and draw your signature to complete.</p>
+  <div class="card" id="msgArea" style="display:none"></div>
 
-    <!-- Uploaded PDF Viewer -->
-    <iframe class="pdf-viewer" id="pdfFrame" src=""></iframe>
+  <div id="signingArea">
+    <div class="steps">
+      <div class="st done" id="st1"><i>1</i>Review</div>
+      <div class="st" id="st2"><i>2</i>Your details</div>
+      <div class="st" id="st3"><i>3</i>Sign</div>
+    </div>
 
-    <!-- Client Inputs -->
-    <form id="signForm">
+    <div class="card info">
+      <div><small>Document</small><b id="docHeading">Loading...</b></div>
+      <div><small>Sent on</small><b id="docDate">-</b></div>
+      <div><small>Status</small><span class="badge" id="docStatus">Awaiting signature</span></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:12px">1. Review the document</h3>
+      <iframe class="pdf-viewer" id="pdfFrame" src=""></iframe>
+      <a class="open" id="openPdf" href="#" target="_blank" rel="noopener">Open full document in a new tab</a>
+    </div>
+
+    <form class="card" id="signForm">
+      <h3 style="margin-bottom:14px">2. Your details</h3>
       <div class="row">
-        <div class="field">
-          <label>Authorized Signatory Name</label>
-          <input type="text" id="signerName" required placeholder="Full Name">
-        </div>
-        <div class="field">
-          <label>Designation / Title</label>
-          <input type="text" id="signerTitle" required placeholder="e.g. Director, Manager">
-        </div>
+        <div class="field"><label for="signerName">Authorized signatory name</label><input type="text" id="signerName" required placeholder="Full name"></div>
+        <div class="field"><label for="signerTitle">Designation / title</label><input type="text" id="signerTitle" required placeholder="e.g. Director, Manager"></div>
       </div>
-      <div class="field">
-        <label>Company / Organization Name</label>
-        <input type="text" id="signerCompany" required placeholder="Company Name">
-      </div>
+      <div class="field"><label for="signerCompany">Company / organization name</label><input type="text" id="signerCompany" required placeholder="Company name"></div>
 
-      <!-- Signature Box -->
-      <div class="field">
-        <label>Draw Your Signature Below (Ungli ya Mouse se sign karein)</label>
+      <h3 style="margin:8px 0 12px">3. Your signature</h3>
+      <div class="tabs"><button type="button" class="on" id="tabDraw">Draw</button><button type="button" id="tabType">Type</button></div>
+      <div id="paneDraw">
         <canvas id="sigCanvas"></canvas>
-        <button type="button" class="btn-clear" id="clearBtn">Clear Signature</button>
+        <p class="hint">Draw your signature with your finger or mouse.</p>
+        <button type="button" class="btn-clear" id="clearBtn">Clear signature</button>
+      </div>
+      <div id="paneType" style="display:none">
+        <input type="text" id="typedSig" placeholder="Type your full name" maxlength="40">
+        <div class="typed" id="typedPreview"></div>
       </div>
 
-      <button type="submit" class="btn btn-gold" id="submitBtn">Sign & Lock Document</button>
+      <label class="consent"><input type="checkbox" id="consent"><span>I have read the document and agree to sign it electronically. I confirm I am authorized to sign on behalf of the company named above.</span></label>
+      <button type="submit" class="btn" id="submitBtn" disabled>Sign &amp; Lock Document</button>
+      <p class="err" id="errMsg"></p>
     </form>
   </div>
 
-  <!-- Success & Download Screen -->
-  <div class="card success-screen" id="successArea">
-    <h1 style="color:#2FA75A">Document Successfully Signed!</h1>
-    <p>A digital copy with your signature, name, and timestamp has been generated.</p>
-    <button class="btn btn-gold" style="max-width:320px;margin-top:16px" id="downloadBtn">Download Signed PDF</button>
+  <div class="card center" id="successArea" style="display:none">
+    <div class="tick">&#10003;</div>
+    <h2 style="color:#1E7A41">Document signed successfully</h2>
+    <p style="color:var(--muted)">Your signature, name and timestamp have been added to the document.</p>
+    <div class="ref">Reference ID: <b id="refId"></b> &middot; Signed on <b id="signedOn"></b></div><br>
+    <button class="btn" style="max-width:320px" id="downloadBtn">Download Signed PDF</button>
   </div>
 </div>
+
+<footer class="ft"><b>Multisolution Agency</b> &middot; Udyam Reg. No. UDYAM-PB-17-0138121<br>Copyright &copy; 2018-<span id="yr">2026</span> - All Rights Reserved.<br><span style="color:#9FB3E0">Secure link &middot; your signature and the time of signing are recorded.</span></footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -96,52 +144,114 @@ var app = initializeApp(firebaseConfig);
 var db = getFirestore(app);
 var storage = getStorage(app);
 
+function $(id){ return document.getElementById(id); }
+$('yr').textContent = new Date().getFullYear();
 var params = new URLSearchParams(window.location.search);
 var docId = params.get('id');
+var currentDocData = null, generatedPdfBytes = null, mode = 'draw';
 
-var canvas = document.getElementById('sigCanvas');
-function resizeCanvas() {
+// ---- Signature pad ----
+var canvas = $('sigCanvas'), lastW = 0;
+function resizeCanvas(){
+  if(canvas.offsetWidth === 0 || canvas.offsetWidth === lastW) return;
+  lastW = canvas.offsetWidth;
   var ratio = Math.max(window.devicePixelRatio || 1, 1);
   canvas.width = canvas.offsetWidth * ratio;
   canvas.height = canvas.offsetHeight * ratio;
   canvas.getContext("2d").scale(ratio, ratio);
+  sigPad.clear();
 }
-window.onresize = resizeCanvas;
-resizeCanvas();
 var sigPad = new SignaturePad(canvas);
-document.getElementById('clearBtn').onclick = () => sigPad.clear();
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+$('clearBtn').onclick = function(){ sigPad.clear(); updateSteps(); };
+sigPad.addEventListener('endStroke', updateSteps);
 
-var currentDocData = null;
-var generatedPdfBytes = null;
+// ---- Draw / Type tabs ----
+function setMode(m){
+  mode = m;
+  $('tabDraw').classList.toggle('on', m==='draw'); $('tabType').classList.toggle('on', m==='type');
+  $('paneDraw').style.display = m==='draw' ? 'block' : 'none';
+  $('paneType').style.display = m==='type' ? 'block' : 'none';
+  if(m==='draw'){ lastW = 0; resizeCanvas(); }
+  updateSteps();
+}
+$('tabDraw').onclick = function(){ setMode('draw'); };
+$('tabType').onclick = function(){ setMode('type'); };
+$('typedSig').addEventListener('input', function(){ $('typedPreview').textContent = this.value; updateSteps(); });
 
-if(docId){
-  getDoc(doc(db, "customDocs", docId)).then(snap => {
-    if(snap.exists()){
-      currentDocData = snap.data();
-      document.getElementById('docHeading').textContent = currentDocData.title || "Review & Sign Document";
-      document.getElementById('pdfFrame').src = currentDocData.pdfUrl || currentDocData.pdfBase64;
-    } else {
-      document.getElementById('signingArea').innerHTML = "<h2>Document not found or link expired.</h2>";
-    }
-  });
-} else {
-  document.getElementById('signingArea').innerHTML = "<h2>No document specified. Please use the signing link that was shared with you.</h2>";
+function hasSignature(){ return mode==='draw' ? !sigPad.isEmpty() : $('typedSig').value.trim().length > 0; }
+function updateSteps(){
+  var det = $('signerName').value.trim() && $('signerTitle').value.trim() && $('signerCompany').value.trim();
+  $('st2').classList.toggle('done', !!det);
+  $('st3').classList.toggle('done', !!(hasSignature() && $('consent').checked));
+  if(!$('submitBtn').dataset.busy) $('submitBtn').disabled = !$('consent').checked;
+}
+['signerName','signerTitle','signerCompany'].forEach(function(id){ $(id).addEventListener('input', updateSteps); });
+$('consent').addEventListener('change', updateSteps);
+
+async function typedSignatureDataUrl(){
+  try{ await document.fonts.load("600 90px 'Dancing Script'"); }catch(e){}
+  var c = document.createElement('canvas'); c.width = 550; c.height = 160;
+  var x = c.getContext('2d'); x.fillStyle = '#0A2463'; x.textBaseline = 'middle'; x.textAlign = 'center';
+  var size = 96, txt = $('typedSig').value.trim();
+  do { x.font = "600 " + size + "px 'Dancing Script', cursive"; size -= 4; } while(x.measureText(txt).width > 520 && size > 24);
+  x.fillText(txt, 275, 82);
+  return c.toDataURL('image/png');
 }
 
-document.getElementById('signForm').onsubmit = async (e) => {
-  e.preventDefault();
-  if(sigPad.isEmpty()){ alert("Kripya sign box me pehle signature karein!"); return; }
-
-  var btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.textContent = "Processing & Stamping Signature...";
-
-  var signerName = document.getElementById('signerName').value;
-  var signerTitle = document.getElementById('signerTitle').value;
-  var signerCompany = document.getElementById('signerCompany').value;
-  var sigImgData = sigPad.toDataURL("image/png");
-
+function showMsg(html){
+  $('signingArea').style.display = 'none'; $('successArea').style.display = 'none';
+  var m = $('msgArea'); m.style.display = 'block'; m.className = 'card center'; m.innerHTML = html;
+}
+function fmtDate(v){
+  var d = v && v.toDate ? v.toDate() : (v ? new Date(v) : null);
+  return d ? d.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) : '-';
+}
+async function downloadFrom(url, name, btn){
+  var old = btn.textContent; btn.disabled = true; btn.textContent = 'Preparing...';
   try{
+    var blob = await (await fetch(url)).blob();
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+  }catch(e){ window.open(url, '_blank'); }
+  btn.disabled = false; btn.textContent = old;
+}
+
+// ---- Load document ----
+if(docId){
+  getDoc(doc(db, "customDocs", docId)).then(function(snap){
+    if(!snap.exists()){ showMsg("<h2>Document not found</h2><p style='color:#55627F'>This link is invalid or has expired. Please contact Multisolution Agency for a new link.</p>"); return; }
+    currentDocData = snap.data();
+    var title = currentDocData.title || "Document";
+    $('docHeading').textContent = title; document.title = title + " | Sign Document";
+    $('docDate').textContent = fmtDate(currentDocData.createdAt);
+    var pdf = currentDocData.pdfUrl || currentDocData.pdfBase64;
+    $('pdfFrame').src = pdf; $('openPdf').href = pdf;
+    if(currentDocData.status === 'Signed'){
+      var url = currentDocData.signedPdfUrl || currentDocData.signedPdfBase64;
+      showMsg("<div class='tick'>&#10003;</div><h2 style='color:#1E7A41'>Already signed</h2><p style='color:#55627F'>This document was signed by <b>" +
+        (currentDocData.signedBy || '').replace(/</g,'&lt;') + "</b> on " + fmtDate(currentDocData.signedAt) + ". It cannot be signed again.</p>" +
+        (url ? "<button class='btn' style='max-width:320px;margin-top:14px' id='dlSigned'>Download Signed PDF</button>" : ""));
+      var b = $('dlSigned'); if(b) b.onclick = function(){ downloadFrom(url, 'Signed_' + title + '.pdf', b); };
+    }
+  }).catch(function(){ showMsg("<h2>Could not load the document</h2><p style='color:#55627F'>Please check your connection and reload the page.</p>"); });
+} else {
+  showMsg("<h2>No document specified</h2><p style='color:#55627F'>Please use the signing link that was shared with you.</p>");
+}
+
+// ---- Sign ----
+function showErr(t){ var e = $('errMsg'); e.textContent = t; e.style.display = t ? 'block' : 'none'; }
+$('signForm').onsubmit = async function(e){
+  e.preventDefault(); showErr('');
+  if(!currentDocData){ return; }
+  if(!hasSignature()){ showErr(mode==='draw' ? 'Please draw your signature in the box above.' : 'Please type your name to create a signature.'); return; }
+  if(!$('consent').checked){ showErr('Please tick the confirmation box to continue.'); return; }
+
+  var btn = $('submitBtn'); btn.dataset.busy = '1'; btn.disabled = true; btn.textContent = "Processing & Stamping Signature...";
+  var signerName = $('signerName').value.trim(), signerTitle = $('signerTitle').value.trim(), signerCompany = $('signerCompany').value.trim();
+  try{
+    var sigImgData = mode==='draw' ? sigPad.toDataURL("image/png") : await typedSignatureDataUrl();
     // Load uploaded original PDF (from Firebase Storage, or from older data-URI documents)
     const existingPdfBytes = await fetch(currentDocData.pdfUrl || currentDocData.pdfBase64).then(res => res.arrayBuffer());
     const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
@@ -151,7 +261,6 @@ document.getElementById('signForm').onsubmit = async (e) => {
     const lastPage = pages[pages.length - 1];
     const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
 
-    // Stamp text on Vendor signature area
     // Coordinates tuned to Multisolution Agency's Master Services Agreement
     // template ("FOR CLIENT" signature block, bottom-right of the last page, A4).
     lastPage.drawText(signerName, { x: 336, y: 427, size: 10, font: font });
@@ -159,7 +268,6 @@ document.getElementById('signForm').onsubmit = async (e) => {
     lastPage.drawText(signerCompany, { x: 349, y: 405, size: 10, font: font });
     lastPage.drawText(new Date().toLocaleDateString('en-GB'), { x: 331, y: 382, size: 10, font: font });
 
-    // Stamp Signature Image
     const signatureImage = await pdfDoc.embedPng(sigImgData);
     lastPage.drawImage(signatureImage, { x: 348, y: 450, width: 110, height: 32 });
 
@@ -170,30 +278,33 @@ document.getElementById('signForm').onsubmit = async (e) => {
     await uploadBytes(signedRef, new Blob([generatedPdfBytes], { type: 'application/pdf' }), { contentType: 'application/pdf' });
     var signedPdfUrl = await getDownloadURL(signedRef);
 
+    var signedAt = new Date();
     await updateDoc(doc(db, "customDocs", docId), {
       status: "Signed",
       signedBy: signerName,
       signedTitle: signerTitle,
       signedCompany: signerCompany,
-      signedAt: new Date().toISOString(),
+      signedAt: signedAt.toISOString(),
       signedPdfUrl: signedPdfUrl
     });
 
-    document.getElementById('signingArea').style.display = 'none';
-    document.getElementById('successArea').style.display = 'block';
+    $('refId').textContent = docId.slice(0, 8).toUpperCase();
+    $('signedOn').textContent = signedAt.toLocaleString('en-GB', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+    $('signingArea').style.display = 'none';
+    $('successArea').style.display = 'block';
+    window.scrollTo(0, 0);
   } catch(err){
     console.error(err);
-    alert("Something went wrong while signing. Please try again, or contact us if the problem continues.");
-    btn.disabled = false;
-    btn.textContent = "Sign & Lock Document";
+    showErr("Something went wrong while signing. Please try again, or contact us if the problem continues.");
+    delete btn.dataset.busy; btn.textContent = "Sign & Lock Document"; updateSteps();
   }
 };
 
-document.getElementById('downloadBtn').onclick = () => {
+$('downloadBtn').onclick = function(){
   const blob = new Blob([generatedPdfBytes], { type: "application/pdf" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `Signed_${currentDocData.title || "Document"}.pdf`;
+  link.download = "Signed_" + ((currentDocData && currentDocData.title) || "Document") + ".pdf";
   link.click();
 };
 </script>

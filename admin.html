@@ -459,7 +459,7 @@ body.in-app header,body.in-app .site-foot{display:none}
   <p class="muted">Upload a PDF agreement or purchase order. A signing link is generated instantly.</p>
   <form id="docUploadForm" style="margin-top:16px">
     <div class="field"><label for="docTitle">Document name / title</label><input id="docTitle" required placeholder="e.g. Purchase Order - Annolance Project"></div>
-    <div class="field"><label for="pdfFileInput">PDF file (max 10 MB)</label><input type="file" id="pdfFileInput" accept="application/pdf" required></div>
+    <div class="field"><label for="pdfFileInput">PDF file</label><input type="file" id="pdfFileInput" accept="application/pdf" required></div>
     <button class="btn btn-gold btn-block" type="submit" id="docUploadBtn"><span>Upload &amp; generate link</span></button>
   </form>
   <div id="uploadLinkBox" style="display:none;margin-top:18px;padding:14px;background:var(--sky);border-radius:12px;border:1px solid var(--line)">
@@ -825,16 +825,15 @@ $('postForm').addEventListener('submit', function(e){
   }).finally(function(){ btn.disabled=false; btn.innerHTML='<span>Post to home page</span>'; });
 });
 
-// ---- PDF upload & signing link (Firebase Storage, up to 10 MB) ----
-var MAX_PDF_MB=10;
+// ---- PDF upload & signing link (Firebase Storage, no size limit in the page) ----
 $('docUploadForm').addEventListener('submit', async function(e){
   e.preventDefault();
   var file=$('pdfFileInput').files[0], title=$('docTitle').value.trim(), btn=$('docUploadBtn');
   if(!file){ toast('Please select a PDF file'); return; }
-  if(file.size>MAX_PDF_MB*1024*1024){ toast('File is larger than '+MAX_PDF_MB+' MB'); return; }
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  var docRef=null;
   try{
-    var docRef=await addDoc(collection(db,'customDocs'),{title:title,status:'Pending',uploadedBy:currentName,createdAt:serverTimestamp()});
+    docRef=await addDoc(collection(db,'customDocs'),{title:title,status:'Pending',uploadedBy:currentName,createdAt:serverTimestamp()});
     var fileRef=storageRef(storage,'documents/'+docRef.id+'/original.pdf');
     await uploadBytes(fileRef,file,{contentType:'application/pdf'});
     var pdfUrl=await getDownloadURL(fileRef);
@@ -842,7 +841,9 @@ $('docUploadForm').addEventListener('submit', async function(e){
     $('docGeneratedLink').value=window.location.origin+'/sign.html?id='+docRef.id;
     $('uploadLinkBox').style.display='block';
     $('docUploadForm').reset(); toast('Document uploaded');
-  }catch(err){ console.error(err); toast('Upload failed. Check your connection and try again.'); }
+  }catch(err){ console.error(err);
+    if(docRef){ deleteDoc(doc(db,'customDocs',docRef.id)).catch(function(){}); }
+    toast('Upload failed: '+((err&&err.code)||(err&&err.message)||'unknown error')); }
   finally{ btn.disabled=false; btn.innerHTML='<span>Upload &amp; generate link</span>'; }
 });
 $('copyLinkBtn').addEventListener('click',function(){
