@@ -1,0 +1,113 @@
+<!-- index.html me ye badlav karein -->
+<style>
+/* 1. Header Mobile Fix */
+@media (max-width: 600px) {
+  .nav { height: 65px; gap: 5px; }
+  .brand b { font-size: 0.85rem; } /* Name ko chota kiya taki patti me fit aaye */
+  .brand-logo { height: 28px; }
+  .np-pill.solo { 
+    padding: 6px 10px; 
+    font-size: 0.65rem; 
+    margin-right: 2px;
+  }
+}
+
+/* 2. Slider CSS */
+.slider-container {
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 40px;
+}
+.pgrid-slider {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 20px;
+}
+.pgrid-slider .pcard {
+  min-width: calc(33.333% - 14px); /* Desktop me 3 dikhenge */
+  flex-shrink: 0;
+}
+@media (max-width: 900px) {
+  .pgrid-slider .pcard { min-width: calc(50% - 10px); }
+}
+@media (max-width: 600px) {
+  .pgrid-slider .pcard { min-width: 100%; }
+}
+
+.slide-btn {
+  position: absolute;
+  top: 40%;
+  transform: translateY(-50%);
+  background: var(--navy);
+  color: #fff;
+  border: 2px solid var(--gold);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.prev-btn { left: -10px; }
+.next-btn { right: -10px; }
+
+/* Last slide "See All" card design */
+.see-all-card {
+  background: linear-gradient(135deg, var(--navy), var(--blue)) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  border: 2px dashed var(--gold) !important;
+}
+</style>
+
+<!-- Body me "Live" Section update karein -->
+<section id="live">
+  <div class="wrap">
+    <div class="live-head">
+      <div class="live-top"><span class="live-dot"></span><span class="live-label">Latest Openings</span></div>
+      <h2>New projects, open now</h2>
+      <div class="rule"></div>
+    </div>
+
+    <div class="slider-container">
+      <button class="slide-btn prev-btn" id="prevSlide">&larr;</button>
+      <div class="pgrid-slider" id="liveGrid">
+        <!-- Slider Content Yahan Aayega -->
+      </div>
+      <button class="slide-btn next-btn" id="nextSlide">&rarr;</button>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+// ... Firebase init ...
+// Slider logic
+let currentPos = 0;
+const grid = document.getElementById('liveGrid');
+
+function updateSlider() {
+  const cardWidth = grid.querySelector('.pcard').offsetWidth + 20;
+  grid.style.transform = `translateX(-${currentPos * cardWidth}px)`;
+}
+
+document.getElementById('nextSlide').onclick = () => {
+  const totalCards = grid.children.length;
+  const visible = window.innerWidth < 600 ? 1 : (window.innerWidth < 900 ? 2 : 3);
+  if (currentPos < totalCards - visible) { currentPos++; updateSlider(); }
+};
+
+document.getElementById('prevSlide').onclick = () => {
+  if (currentPos > 0) { currentPos--; updateSlider(); }
+};
+
+// JS to add "See All" card at the end of the fetch
+// Snapshot function ke andar:
+// let html = posts.map(...).join('');
+// html += `<article class="pcard see-all-card"><a href="projects.html" class="pc-in" style="background:transparent; justify-content:center; color:#fff"><h3>View All<br>Details &rarr;</h3></a></article>`;
+// liveGrid.innerHTML = html;
+</script>
