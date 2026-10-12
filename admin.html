@@ -244,6 +244,8 @@ body.in-app header,body.in-app .site-foot{display:none}
 @media (prefers-reduced-motion:reduce){.lv-grid,.lv-glow,.lv-scan,.lv-orbit,.lv-particle,.login-box{animation:none}}
 .poster-up{display:flex;gap:14px;align-items:center}
 .poster-pv{width:84px;height:105px;flex:none;border:1.5px dashed var(--line);border-radius:10px;background:var(--sky) center/contain no-repeat;display:flex;align-items:center;justify-content:center;text-align:center;font-size:.7rem;color:var(--muted)}
+.ptitle p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#pDesc{min-height:170px}
 .ptitle img{width:44px;height:55px;object-fit:cover;border-radius:6px;flex:none}
 </style>
 </head>
@@ -474,11 +476,11 @@ body.in-app header,body.in-app .site-foot{display:none}
 <!-- Post modal -->
 <div class="md" id="postModal" hidden><div class="md-box">
   <div class="md-h"><h3>New project post</h3><button class="md-x" data-close="postModal" type="button" aria-label="Close">&times;</button></div>
-  <p class="muted">Shows instantly on the New Projects page, and the 6 latest also appear in the "Live" section on the home page.</p>
+  <p class="muted">Shows on the New Projects page with a short preview. People can open View details to read everything, with your contact details at the bottom. The 6 latest also appear on the home page.</p>
   <form id="postForm" style="margin-top:16px">
     <label>Icon</label><div class="emoji-grid" id="emojiGrid"></div>
     <div class="field"><label for="pTitle">Project / update title</label><input id="pTitle" maxlength="90" required placeholder="e.g. Egocentric Household Video Collection"></div>
-    <div class="field"><label for="pDesc">Short description</label><textarea id="pDesc" maxlength="220" required placeholder="e.g. Collecting first-person household video in Hindi and Punjabi."></textarea></div>
+    <div class="field"><label for="pDesc">Description (as long as you like, links are clickable)</label><textarea id="pDesc" maxlength="20000" required placeholder="Write the full details here: what the project is, requirements, languages, rates, deadline, and any links. Cards show a short preview; everyone can read all of it under View details."></textarea></div>
     <div class="field"><label for="pCat">Category</label><select id="pCat"><option value="">None</option><option>Voice &amp; Speech</option><option>Translation</option><option>AI Data</option><option>Localization</option><option>Transcription</option><option>Vendor Hiring</option><option>Other</option></select></div>
     <div class="field"><label>Poster (optional)</label>
       <div class="poster-up"><div class="poster-pv" id="posterPv">No poster</div>
