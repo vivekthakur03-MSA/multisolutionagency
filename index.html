@@ -518,38 +518,6 @@ html{scroll-padding-top:90px}
 @media (max-width:860px){.flow{grid-template-columns:1fr;gap:28px}.flow::before,.flow::after{display:none}.step{display:flex;gap:16px;text-align:left;align-items:flex-start;padding:0}.step-n{margin:0;flex:none;width:56px;height:56px;font-size:1.1rem}}
 @media (max-width:520px){.cred-in{font-size:.8rem}.cert-in{padding:20px 16px}.cert-row{flex-direction:column;gap:2px}.cert-row b{text-align:left}}
 @media (prefers-reduced-motion:reduce){.cred-bar::before,.cert-in::after{animation:none}.flow::after{transition:none}}
-
-/* ===== v3: live slider + mobile header ===== */
-.ls{position:relative}
-.ls-viewport{overflow:hidden;padding:10px 6px 18px;margin:0 -6px}
-.ls-track{display:flex;transition:transform .85s cubic-bezier(.65,0,.2,1);will-change:transform}
-.ls-page{flex:0 0 100%;min-width:0;display:grid;grid-template-columns:repeat(var(--pv,3),minmax(0,1fr));gap:26px;align-items:stretch;padding:0 6px;box-sizing:border-box}
-.ls-page.act .pcard{animation:lsin .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0)*.1s)}
-@keyframes lsin{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
-.ls-arrow{position:absolute;top:40%;z-index:5;width:46px;height:46px;border-radius:50%;border:0;background:var(--gold);color:var(--navy-deep);font-size:1.6rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.3);transition:transform .2s,background .2s}
-.ls-arrow:hover{transform:scale(1.1);background:#F2C879}
-.ls-arrow.prev{left:-24px}.ls-arrow.next{right:-24px}
-.ls-dots{display:flex;justify-content:center;gap:10px;margin-top:22px}
-.ls-dots button{width:10px;height:10px;border-radius:999px;border:0;padding:0;background:rgba(255,255,255,.35);cursor:pointer;transition:width .35s,background .35s}
-.ls-dots button.on{width:34px;background:var(--gold)}
-.ls.empty .ls-arrow,.ls.empty .ls-dots{display:none}
-.ls-cta{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1.5px dashed rgba(255,255,255,.35);border-radius:22px;padding:60px 24px;color:#C7D4F0;min-height:360px}
-.ls-cta b{font:800 clamp(1.4rem,3vw,2rem) 'Montserrat',sans-serif;color:#fff;margin-bottom:10px}
-.ls-cta .btn{margin-top:22px}
-@media (max-width:1200px){.ls-arrow.prev{left:-6px}.ls-arrow.next{right:-6px}}
-@media (max-width:620px){.ls-arrow{width:38px;height:38px;font-size:1.3rem;top:28%}.ls-page{padding:0 2px}}
-@media (max-width:600px){
-  .nav{height:64px}
-  .brand{gap:8px;min-width:0}
-  .brand-logo{height:34px}
-  .brand b{font-size:1rem;white-space:nowrap}
-  .brand small{font-size:.54rem;letter-spacing:.42em}
-  .nav-right{gap:8px;flex:none}
-  .np-pill{padding:7px 11px;font-size:.7rem;gap:6px}
-  .np-pill .np-x{display:none}
-  .menu-btn{width:42px;height:42px;border-radius:12px}
-}
-@media (max-width:370px){.np-pill{padding:7px 9px}.np-dot{display:none}.brand b{font-size:.9rem}.brand-logo{height:30px}}
 </style>
 <script>document.documentElement.classList.add('js')</script>
 </head>
@@ -588,7 +556,7 @@ html{scroll-padding-top:90px}
       <a href="#services">Services</a><a href="#process">How we work</a><a href="#projects">Projects</a><a href="#about">About</a><a href="contact.html">Contact</a>
     </nav>
     <div class="nav-right">
-      <a class="np-pill" href="projects.html" title="New Projects"><span class="np-dot"></span><span class="np-t"><span class="np-x">See </span>Openings</span></a>
+      <a class="np-pill" href="projects.html" title="New Projects"><span class="np-dot"></span>See Openings</a>
       <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -632,6 +600,7 @@ html{scroll-padding-top:90px}
           <a href="contact.html" class="btn btn-gold">Contact us</a>
           <a href="#services" class="btn btn-line">Explore services</a>
         </div>
+        <div class="msme"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3l14 5v10c0 9-6 16-14 19C12 34 6 27 6 18V8z" fill="#0A2463"/><path d="M13 20l5 5 9-10" fill="none" stroke="#D9962B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>MSME REGISTERED &middot; GOVERNMENT OF INDIA</b><span>Udyam Reg. No. UDYAM-PB-17-0138121</span></div></div>
       </div>
 
       <div class="globe-box">
@@ -666,6 +635,8 @@ html{scroll-padding-top:90px}
     <svg class="hero-curve" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 60V30C300 -10 700 -10 1000 20S1300 40 1440 20V60Z" fill="#0A2463"/><path d="M0 60V42C300 6 700 6 1000 32S1300 50 1440 34V60Z" fill="#D9962B" opacity=".0"/></svg>
   </div>
 
+  <div class="cred-bar"><div class="wrap cred-in"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3l14 5v10c0 9-6 16-14 19C12 34 6 27 6 18V8z" fill="#fff"/><path d="M13 20l5 5 9-10" fill="none" stroke="#D9962B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg><b>MSME / Udyam Registered</b><i>&bull;</i><span>Ministry of MSME, Government of India</span><i>&bull;</i><code>UDYAM-PB-17-0138121</code></div></div>
+
   <div class="strip">
     <div class="wrap">
       <div class="item"><strong><span class="count" data-to="250">0</span>+</strong><span>Languages worldwide</span></div>
@@ -684,11 +655,14 @@ html{scroll-padding-top:90px}
         <div class="rule"></div>
         <p>The latest projects we are working on. Tap any project to talk to our team.</p>
       </div>
-      <div class="ls" id="liveSlider" aria-live="polite">
-        <button class="ls-arrow prev" id="lsPrev" type="button" aria-label="Previous projects">&#8249;</button>
-        <div class="ls-viewport"><div class="ls-track" id="liveTrack"><div class="ls-page" style="--pv:3"><div class="pcard sk"><div class="pc-in"><div class="pc-img"></div><div class="pc-body"><i style="width:80%"></i><i></i><i style="width:60%"></i></div></div></div><div class="pcard sk"><div class="pc-in"><div class="pc-img"></div><div class="pc-body"><i style="width:80%"></i><i></i><i style="width:60%"></i></div></div></div><div class="pcard sk"><div class="pc-in"><div class="pc-img"></div><div class="pc-body"><i style="width:80%"></i><i></i><i style="width:60%"></i></div></div></div></div></div></div>
-        <button class="ls-arrow next" id="lsNext" type="button" aria-label="Next projects">&#8250;</button>
-        <div class="ls-dots" id="liveDots"></div>
+      <div class="pgrid" id="liveGrid" aria-live="polite">
+        <div class="pcard sk"><div class="pc-in"><div class="pc-img"></div><div class="pc-body"><i style="width:80%"></i><i></i><i style="width:60%"></i></div></div></div>
+        <div class="pcard sk"><div class="pc-in"><div class="pc-img"></div><div class="pc-body"><i style="width:80%"></i><i></i><i style="width:60%"></i></div></div></div>
+        <div class="pcard sk"><div class="pc-in"><div class="pc-img"></div><div class="pc-body"><i style="width:80%"></i><i></i><i style="width:60%"></i></div></div></div>
+      </div>
+      <div class="live-more">
+        <a class="btn btn-gold" href="projects.html">See all new projects &rarr;</a>
+        <p>Showing the 6 latest projects. All openings are on the New Projects page.</p>
       </div>
     </div>
   </section>
@@ -969,7 +943,7 @@ html{scroll-padding-top:90px}
       <span class="foot-addr">MSME Registered &middot; Udyam Reg. No. UDYAM-PB-17-0138121</span></div>
     </div>
     <div class="wrap foot-legal">
-    <a href="privacy.html">Privacy Policy</a><span>&middot;</span><a href="terms.html">Terms of Service</a><span>&middot;</span><a href="admin.html">Admin</a>
+    <a href="privacy.html">Privacy Policy</a><span>&middot;</span><a href="terms.html">Terms of Service</a><span>&middot;</span><a href="projects.html">New Projects</a><span>&middot;</span><a href="admin.html">Admin</a>
   </div>
 </footer>
 
@@ -1069,52 +1043,25 @@ function pcHtml(d,i){
   var poster=/^(data:image\/|https:\/\/)/.test(d.poster||'')?d.poster:'';
   var ms=d.createdAt&&d.createdAt.toMillis?d.createdAt.toMillis():0, isNew=ms&&(Date.now()-ms)<7*864e5;
   var date=ms?new Date(ms).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'';
-  var href='projects.html?open='+encodeURIComponent(d.id||'');
-  return '<article class="pcard" style="--i:'+i+'"><a class="pc-in" href="'+href+'" aria-label="'+t+' - view details">'+
+  var href='contact.html?project='+encodeURIComponent(d.title||'');
+  return '<article class="pcard rv'+(poster?' hasimg':'')+'" style="--d:'+((i%3)*0.1)+'s"><a class="pc-in" href="'+href+'" aria-label="'+t+' - contact us">'+
     '<div class="pc-img'+(poster?'':' noimg')+'">'+(poster?'<img src="'+poster+'" alt="'+t+'" loading="lazy">':'<span class="pc-emoji">'+escapeHtml(d.emoji||'\ud83d\udce3')+'</span>')+
     (cat?'<span class="pc-cat">'+cat+'</span>':'')+(isNew?'<span class="pc-new">NEW</span>':'')+'</div>'+
     '<div class="pc-body"><h3>'+t+'</h3>'+(desc?'<p>'+desc+'</p>':'')+(needs?'<span class="pc-tag">Looking for: '+needs+'</span>':'')+
-    '<div class="pc-foot"><span>'+date+'</span><span class="pc-go">View details <b>&rarr;</b></span></div></div></a></article>';
+    '<div class="pc-foot"><span>'+date+'</span><span class="pc-go">Contact us <b>&rarr;</b></span></div></div></a></article>';
 }
-var slider=document.getElementById('liveSlider'), liveTrack=document.getElementById('liveTrack'), liveDots=document.getElementById('liveDots');
-var EMPTY='<div class="ls-page" style="--pv:1"><div class="pempty"><b>New projects will be listed here soon</b>Tell us about your requirement, or register as a vendor to hear about openings first.<br><a class="btn btn-gold" href="contact.html">Contact us</a></div></div>';
-var posts=[], pv=0, page=0, total=1, timer=null, hovering=false;
-var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-function getPV(){ var w=window.innerWidth; return w<=620?1:(w<=980?2:3); }
-function go(n){
-  page=(n+total)%total; liveTrack.style.transform='translateX(-'+(page*100)+'%)';
-  Array.prototype.forEach.call(liveTrack.children,function(p,i){ p.classList.toggle('act',i===page); });
-  Array.prototype.forEach.call(liveDots.children,function(b,i){ b.classList.toggle('on',i===page); });
-}
-function stopAuto(){ if(timer){ clearInterval(timer); timer=null; } }
-function startAuto(){ stopAuto(); if(total>1&&!reduce) timer=setInterval(function(){ if(!hovering&&!document.hidden) go(page+1); },5500); }
-function build(){
-  if(!posts.length){ liveTrack.innerHTML=EMPTY; liveDots.innerHTML=''; slider.classList.add('empty'); total=1; liveTrack.style.transform='none'; return; }
-  slider.classList.remove('empty'); pv=getPV();
-  var html='';
-  for(var i=0;i<posts.length;i+=pv){ html+='<div class="ls-page" style="--pv:'+pv+'">'+posts.slice(i,i+pv).map(function(d,k){ return pcHtml(d,k); }).join('')+'</div>'; }
-  html+='<div class="ls-page" style="--pv:1"><div class="ls-cta"><b>Want to see more?</b>Browse every open project with full details.<a class="btn btn-gold" href="projects.html">See all projects &rarr;</a></div></div>';
-  liveTrack.innerHTML=html; total=liveTrack.children.length;
-  liveDots.innerHTML=Array.apply(null,Array(total)).map(function(_,i){ return '<button type="button" aria-label="Go to slide '+(i+1)+'"></button>'; }).join('');
-  go(Math.min(page,total-1)); startAuto();
-}
-document.getElementById('lsPrev').addEventListener('click',function(){ go(page-1); startAuto(); });
-document.getElementById('lsNext').addEventListener('click',function(){ go(page+1); startAuto(); });
-liveDots.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; go(Array.prototype.indexOf.call(liveDots.children,b)); startAuto(); });
-slider.addEventListener('mouseenter',function(){ hovering=true; });
-slider.addEventListener('mouseleave',function(){ hovering=false; });
-var tx=0;
-slider.addEventListener('touchstart',function(e){ tx=e.touches[0].clientX; hovering=true; },{passive:true});
-slider.addEventListener('touchend',function(e){ hovering=false; var dx=e.changedTouches[0].clientX-tx; if(Math.abs(dx)>50){ go(page+(dx<0?1:-1)); startAuto(); } },{passive:true});
-var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(function(){ if(posts.length&&getPV()!==pv){ page=0; build(); } },200); });
+var liveGrid=document.getElementById('liveGrid');
+var EMPTY='<div class="pempty"><b>New projects will be listed here soon</b>Tell us about your requirement, or register as a vendor to hear about openings first.<br><a class="btn btn-gold" href="contact.html">Contact us</a></div>';
 try{
   var app=initializeApp(firebaseConfig);
   var db=getFirestore(app);
   var q=query(collection(db,"liveUpdates"), orderBy("createdAt","desc"), limit(6));
   onSnapshot(q, function(snap){
-    posts=[]; snap.forEach(function(ds){ var d=ds.data(); d.id=ds.id; posts.push(d); }); build();
-  }, function(err){ console.warn('Live projects unavailable.', err); posts=[]; build(); });
-}catch(e){ console.warn('Firebase not available.', e); posts=[]; build(); }
+    if(snap.empty){ liveGrid.innerHTML=EMPTY; return; }
+    var html='',i=0; snap.forEach(function(ds){ html+=pcHtml(ds.data(),i++); });
+    liveGrid.innerHTML=html; if(window.rvObserve) rvObserve(liveGrid);
+  }, function(err){ console.warn('Live projects unavailable.', err); liveGrid.innerHTML=EMPTY; });
+}catch(e){ console.warn('Firebase not available.', e); liveGrid.innerHTML=EMPTY; }
 
 // Robotic intro
 (function(){
