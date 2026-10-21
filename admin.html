@@ -551,7 +551,7 @@ function roleOf(user){
   var data=new TextEncoder().encode((user.email||'').toLowerCase());
   return crypto.subtle.digest('SHA-256',data).then(function(buf){
     var hex=Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
-    return hex===CEO_HASH ? 'ceo' : 'manager';
+    return hex===CEO_HASH ? 'ceo' : (hex==='aed3c98f0cc7df0aa592479ce0dbd3e5b19d47fac95c0e36a0adcd2f69980b36' ? 'manager' : null);
   });
 }
 function showLoginError(t){ loginMsg.textContent=t; loginMsg.style.display='block'; }
@@ -615,6 +615,7 @@ onAuthStateChanged(auth, function(user){
     return;
   }
   roleOf(user).then(function(role){
+    if(!role){ loginRole=''; signOut(auth).then(function(){ showLoginError('This account does not have admin access.'); }); return; }
     if(loginRole && role!==loginRole){
       loginRole='';
       signOut(auth).then(function(){ showLoginError('This account does not belong to the selected role. Please choose the correct role.'); });

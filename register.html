@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Register | Multisolution Agency</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body data-theme="freelancer">
+<main class="au">
+  <div class="au-bg" aria-hidden="true"><span class="gr"></span><i class="o1"></i><i class="o2"></i><span class="rg"></span></div>
+  <div class="au-card wide">
+    <div class="au-top"><span class="brand">MULTI<b>SOLUTION</b></span><a class="au-home" href="index.html">&larr; Website</a></div>
+    <h1>Create your account</h1>
+    <p class="mu">Choose how you want to work with us</p>
+    <div class="seg" id="seg"><button type="button" data-r="freelancer" class="on">Freelancer</button><button type="button" data-r="vendor">Register as a Vendor</button></div>
+    <form id="f">
+      <div class="f v-only"><label for="company">Company / team name</label><input id="company" autocomplete="organization"></div>
+      <div class="row2">
+        <div class="f"><label for="name" id="nameLb">Full name</label><input id="name" required autocomplete="name"></div>
+        <div class="f"><label for="phone">Phone number</label><input id="phone" type="tel" required autocomplete="tel"></div>
+      </div>
+      <div class="f v-only"><label for="team">Team size (how many members)</label><input id="team" type="number" min="1" placeholder="e.g. 25"></div>
+      <div class="row2">
+        <div class="f"><label for="email">Email</label><input id="email" type="email" required autocomplete="email"></div>
+        <div class="f"><label for="country">Country</label><input id="country" list="dlC" required autocomplete="country-name"></div>
+      </div>
+      <div class="f"><label for="lang">Languages you work in</label>
+        <div class="join"><div class="f"><input id="lang" list="dlL" placeholder="Type or pick a language, then Add"></div><button class="btn line sm" id="langAdd" type="button">Add</button></div>
+        <div class="chips" id="langList"></div></div>
+      <div class="f"><label for="exp" id="expLb">Your experience</label><textarea id="exp" required placeholder="Tell us about your work: recording, transcription, translation, annotation, etc."></textarea></div>
+      <div class="row2">
+        <div class="f"><label for="pw">Password</label><input id="pw" type="password" required minlength="8" autocomplete="new-password"><p class="hint">At least 8 characters</p></div>
+        <div class="f"><label for="pw2">Confirm password</label><input id="pw2" type="password" required autocomplete="new-password"></div>
+      </div>
+      <label class="consent"><input type="checkbox" id="consent"><span>I am 18 or older. I agree to the <a href="terms.html" target="_blank">Terms of Service</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>, and I consent to my details and any recordings I submit being used for projects.</span></label>
+      <button class="btn block" id="btn" type="submit">Create account</button>
+      <p class="msg" id="msg"></p>
+    </form>
+    <p class="au-alt">Already have an account? <a href="login.html" id="loginLink">Log in</a></p>
+    <datalist id="dlC"></datalist><datalist id="dlL"></datalist>
+  </div>
+</main>
+<script type="module">
+import { $, registerAccount, chipInput, fillDatalist, LANGUAGES, COUNTRIES, friendly, dashboardUrl } from './portal.js';
+fillDatalist($('dlC'), COUNTRIES); fillDatalist($('dlL'), LANGUAGES);
+const langs = chipInput($('lang'), $('langAdd'), $('langList'), []);
+let role = new URLSearchParams(location.search).get('role') === 'vendor' ? 'vendor' : 'freelancer';
+function setRole(r){
+  role = r; document.body.dataset.theme = r;
+  document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', b.dataset.r === r));
+  $('nameLb').textContent = r === 'vendor' ? 'Contact person name' : 'Full name';
+  $('expLb').textContent = r === 'vendor' ? 'Team experience' : 'Your experience';
+  $('company').required = $('team').required = r === 'vendor';
+  $('loginLink').href = 'login.html?role=' + r;
+}
+setRole(role);
+document.getElementById('seg').addEventListener('click', e => { const b = e.target.closest('button'); if(b) setRole(b.dataset.r); });
+const msg = (t) => { const m = $('msg'); m.textContent = t; m.className = 'msg err'; m.style.display = 'block'; };
+$('f').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('msg').style.display = 'none';
+  const languages = langs.get();
+  if(!languages.length){ msg('Please add at least one language.'); return; }
+  if($('pw').value.length < 8){ msg('Password must be at least 8 characters.'); return; }
+  if($('pw').value !== $('pw2').value){ msg('The two passwords do not match.'); return; }
+  if(!$('consent').checked){ msg('Please tick the consent box to continue.'); return; }
+  const profile = { name: $('name').value.trim(), phone: $('phone').value.trim(), country: $('country').value.trim(), languages, experience: $('exp').value.trim(), consentAt: new Date().toISOString() };
+  if(role === 'vendor'){ profile.company = $('company').value.trim(); profile.teamSize = parseInt($('team').value, 10) || 0; }
+  const btn = $('btn'); btn.disabled = true; btn.textContent = 'Creating your account...';
+  try{ await registerAccount(role, $('email').value.trim(), $('pw').value, profile); location.replace(dashboardUrl(role)); }
+  catch(err){ console.error(err); msg(friendly(err)); btn.disabled = false; btn.textContent = 'Create account'; }
+});
+</script>
+</body>
+</html>

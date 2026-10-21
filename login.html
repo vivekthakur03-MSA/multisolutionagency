@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log in | Multisolution Agency</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="portal.css">
+</head>
+<body data-theme="freelancer">
+<main class="au">
+  <div class="au-bg" aria-hidden="true"><span class="gr"></span><i class="o1"></i><i class="o2"></i><span class="rg"></span></div>
+  <div class="au-card">
+    <div class="au-top"><span class="brand">MULTI<b>SOLUTION</b></span><a class="au-home" href="index.html">&larr; Website</a></div>
+    <h1>Welcome back</h1>
+    <p class="mu">Log in to your account</p>
+    <div class="seg" id="seg"><button type="button" data-r="freelancer" class="on">Freelancer</button><button type="button" data-r="vendor">Vendor</button></div>
+    <form id="f">
+      <div class="f"><label for="email">Email</label><input id="email" type="email" required autocomplete="username"></div>
+      <div class="f"><label for="pw">Password</label><input id="pw" type="password" required autocomplete="current-password"></div>
+      <div style="text-align:right;margin:-4px 0 14px"><button class="au-link" id="forgot" type="button">Forgot password?</button></div>
+      <button class="btn block" id="btn" type="submit">Log in</button>
+      <p class="msg" id="msg"></p>
+    </form>
+    <p class="au-alt">New here? <a href="register.html" id="regLink">Create an account</a></p>
+  </div>
+</main>
+<script type="module">
+import { $, auth, db, doc, getDoc, onAuthStateChanged, loginAccount, sendReset, friendly, dashboardUrl } from './portal.js';
+let role = new URLSearchParams(location.search).get('role') === 'vendor' ? 'vendor' : 'freelancer', busy = false;
+function setRole(r){
+  role = r; document.body.dataset.theme = r;
+  document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', b.dataset.r === r));
+  $('regLink').href = 'register.html?role=' + r;
+}
+setRole(role);
+document.getElementById('seg').addEventListener('click', e => { const b = e.target.closest('button'); if(b) setRole(b.dataset.r); });
+const msg = (t, ok) => { const m = $('msg'); m.textContent = t; m.className = 'msg ' + (ok ? 'ok' : 'err'); m.style.display = 'block'; };
+$('f').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('msg').style.display = 'none'; busy = true;
+  const btn = $('btn'); btn.disabled = true; btn.textContent = 'Logging in...';
+  try{ await loginAccount(role, $('email').value.trim(), $('pw').value); location.replace(dashboardUrl(role)); }
+  catch(err){ console.error(err); msg(friendly(err)); btn.disabled = false; btn.textContent = 'Log in'; busy = false; }
+});
+$('forgot').addEventListener('click', async () => {
+  const em = $('email').value.trim(); if(!em){ msg('Enter your email above first, then click Forgot password.'); return; }
+  try{ await sendReset(em); msg('If this email is registered, a password reset link has been sent.', true); }catch(err){ msg(friendly(err)); }
+});
+// Already logged in? Go straight to the dashboard.
+onAuthStateChanged(auth, async (u) => {
+  if(!u || busy) return;
+  try{ const s = await getDoc(doc(db, 'users', u.uid)); if(!busy && s.exists()) location.replace(dashboardUrl(s.data().role)); }catch(e){}
+});
+</script>
+</body>
+</html>
